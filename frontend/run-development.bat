@@ -1,0 +1,1 @@
+set ENV_FILE=.env.development && npm run serve
