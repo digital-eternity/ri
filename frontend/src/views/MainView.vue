@@ -2,7 +2,7 @@
   <v-container>
     <v-row class="mb-10 mt-10">
       <v-col>
-        <RhytmBuilder/>
+        <RhythmBuilder/>
       </v-col>
     </v-row>
   </v-container>
@@ -12,7 +12,7 @@
 import { onMounted } from 'vue'
 
 // components
-import RhytmBuilder from '@/components/RhytmBuilder.vue'
+import RhythmBuilder from '@/components/RhythmBuilder.vue'
 
 onMounted(async () => {
   console.info('MainView mounted')

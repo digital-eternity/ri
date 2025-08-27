@@ -35,12 +35,6 @@ const routes: Array<RouteRecordRaw> = [
         meta: { requiresAuth: true }
       },
       {
-        path: 'manage', // Child route for test cases
-        name: 'manage',
-        component: ProjectManagementView,
-        meta: { requiresAuth: true }
-      },
-      {
         path: 'test-cases', // Child route for test cases
         name: 'test-cases',
         component: TestCasesView,
@@ -101,13 +95,13 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
-  if (to.meta.requiresAuth && !authService.isLoggedIn()) {
-    // If route requires authentication and user is not logged in, redirect to login
-    next('/login')
-  } else {
-    next() // Allow navigation
-  }
-})
+// router.beforeEach((to, from, next) => {
+//   if (to.meta.requiresAuth && !authService.isLoggedIn()) {
+//     // If route requires authentication and user is not logged in, redirect to login
+//     next('/login')
+//   } else {
+//     next() // Allow navigation
+//   }
+// })
 
 export default router
