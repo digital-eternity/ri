@@ -1,5 +1,5 @@
 import axios from './axiosConfig'
-import { User } from '@/types/tmsTypes'
+import { User } from '@/types/riTypes'
 
 const API_URL = process.env.VUE_APP_API_URL + '/Users'
 
