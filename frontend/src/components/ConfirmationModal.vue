@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, defineExpose } from 'vue'
+import { ref } from 'vue'
 
 interface ConfirmationModalEmits {
   (e: 'confirm'): void

@@ -22,7 +22,6 @@
 import { useRoute } from 'vue-router'
 import { computed, ref, watch } from 'vue'
 import { isLoggedIn } from '@/api/authService'
-// import { projectService } from '@/api/projectService'
 
 import UserMenu from '@/components/UserMenu.vue'
 

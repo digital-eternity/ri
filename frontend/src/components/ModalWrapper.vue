@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, defineExpose, PropType } from 'vue'
+import { ref, PropType } from 'vue'
 
 interface ModalEmits {
   (e: 'close'): void
