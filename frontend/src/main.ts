@@ -1,5 +1,4 @@
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
 import VueApexCharts from 'vue3-apexcharts'
 import './registerServiceWorker'
 import router from './router'
@@ -21,7 +20,6 @@ const vuetify = createVuetify({
 
 createApp(App)
   .use(router)
-  .use(createPinia())
   .use(vuetify)
   .use(VueApexCharts)
   .mount('#app')

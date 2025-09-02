@@ -1,11 +1,11 @@
 <template>
   <v-row>
     <v-col>
-      <v-switch v-model="simpleView" @click="switchAdvancedSettings" label="Advanced view"></v-switch>
+      <v-switch @click="switchMode" label="Advanced view"></v-switch>
     </v-col>
   </v-row>
   <v-card>
-    <v-card-title class="text-left">{{ rhythmObj.name }}</v-card-title>
+    <v-card-title class="text-left">{{ rhythmObj ? rhythmObj.name : '' }}</v-card-title>
     <v-card-text class="text-left">
       <v-row>
         <v-col>
@@ -28,19 +28,20 @@
             <p><strong>Rhytm:</strong></p>
 
             <v-row>
-              <v-col class="d-flex flex-column" cols="auto" v-for="(note, index) in rhythmObj.rhythm" :key="index">
+              <v-col class="d-flex flex-column" cols="auto" v-for="(el, index) in uiElements" :key="index">
                 <v-btn
-                  :icon="notesIcons[index]"
-                  @click="nextNote(index)"
-                  v-model="rhythmObj.rhythm[index]"
-                  :class="{
+                  :icon="el.label"
+                  @click="switchNote(index)"
+                  :width="el.duration * 50"
+                  :class=" {
                             'highlighted': currentIndex === index,
                             'violet-highlight': isPlaying && currentIndex === index
                           }"
+                  :style="`border-radius: ${advancedView ? '0px' : '50%' }`"
                 />
                 <v-btn
                   class="mt-auto align-self-end mt-n2"
-                  v-if="index === rhythmObj.rhythm.length - 1"
+                  v-if="index === uiElements.length - 1"
                   density="compact"
                   size="small"
                   icon="mdi-trash-can"
@@ -53,20 +54,6 @@
                   icon="mdi-plus"
                   @click="appendNote"
                 />
-              </v-col>
-            </v-row>
-            <v-row class="mt-0">
-              <v-col class="d-flex flex-column" cols="auto" v-for="(note, index) in rhythmObj.rhythm" :key="index">
-                <v-btn
-                  variant="plain"
-                  :icon="notesIcons[index]"
-                  @click="nextNote(index)"
-                  v-model="rhythmObj.rhythm[index]"
-                  :class="{
-                            'highlighted': currentIndex === index,
-                            'violet-highlight': isPlaying && currentIndex === index
-                          }"
-                >{{subDivisions[index]}}</v-btn>
               </v-col>
             </v-row>
           </div>
@@ -92,81 +79,108 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { rhythmsService } from '@/api/rhythmsService'
-import { Note, NoteIcon } from '@/types/uiTypes'
-import { Rhythm } from '@/types/riTypes'
+import { NoteIcon } from '@/types/uiTypes'
+import { Rhythm, RhythmElementType, RhythmElementDuration } from '@/types/riTypes'
 
-const tempo = ref(80)
-const blankIcon = 'mdi-check-box-outline-blank'
-const notes = ref<Note[]>([])
-const notesIcons = ref<string[]>([])
-const subDivisions = ref<string[]>([])
-const noteOptions: Note[] = ['', '1', '2', '4', '8', '16']
+interface UiRhythmElement {
+  label: NoteIcon,
+  duration: number
+}
+
+const tempo = ref(140)
+const noteOptions: RhythmElementDuration[] = ['WHOLE', 'HALF', 'QUARTER', 'EIGHT', 'SIXTEENTH', 'THIRTYSECOND']
+const sizeOptions: number[] = [4, 2, 1, 0.5, 0.25, 0.125]
 const subDivisionOptions: string[][] = [[], ['&'], ['&', 'a'], ['e', '&', 'a']]
-const noteIconsOptions: NoteIcon[] = [blankIcon, 'mdi-music-note-whole', 'mdi-music-note-half', 'mdi-music-note-quarter', 'mdi-music-note-eighth', 'mdi-music-note-sixteenth']
-const rhythmObj = ref<Rhythm>({ name: 'la-bamba', rhythm: [false], length: 1, subDivision: 1 })
-const subDivision = ref(1)
-const simpleView = ref(false)
+const noteIconsOptions: NoteIcon[] = ['mdi-music-note-whole', 'mdi-music-note-half', 'mdi-music-note-quarter', 'mdi-music-note-eighth', 'mdi-music-note-sixteenth', 'mdi-music-note-sixteenth']
+const rhythmObj = ref<Rhythm | null>()
+const advancedView = ref(false)
 const audio = new Audio('/default-click.mp3')
+
+const uiElements = ref<UiRhythmElement[]>([])
 
 onMounted(async () => {
   rhythmObj.value = await rhythmsService.getRhythm(1)
-  buildRhythm()
+  rebuildRhythm()
 })
 
 const buildRhythm = () => {
-  notes.value = rhythmObj.value.rhythm.map(r => r ? '4' : '')
-  notesIcons.value = rhythmObj.value.rhythm.map(r => r ? noteIconsOptions[3] : blankIcon)
+  if (rhythmObj.value) {
+    uiElements.value = []
+    const reTypes = rhythmObj.value.aRhythm.flatMap(r => r.blockSubdivisions).map(s => s.type)
 
-  let i = 0
-  subDivisions.value = new Array(rhythmObj.value.length)
+    for (let i = 0; i < rhythmObj.value.aRhythm.length; i++) {
+      const label = reTypes[i] === 'PAUSE' ? '' : 'mdi-circle'
 
-  while (i < rhythmObj.value.length) {
-    subDivisions.value[i] = getSubdivisionValue(i)
-    i++
+      uiElements.value.push({
+        label: label,
+        duration: sizeOptions[2]
+      })
+    }
   }
 }
 
-const switchAdvancedSettings = () => {
-  subDivision.value = simpleView.value ? 1 : rhythmObj.value.subDivision
-  buildRhythm()
+const buildRhythmAdvanced = () => {
+  if (rhythmObj.value) {
+    uiElements.value = []
+    const reTypes = rhythmObj.value.aRhythm.flatMap(r => r.blockSubdivisions).map(s => s.type)
+    const reDurations = rhythmObj.value.aRhythm.flatMap(r => r.blockSubdivisions).map(s => s.duration)
+
+    for (let i = 0; i < rhythmObj.value.aRhythm.length; i++) {
+      const label = reTypes[i] === 'PAUSE' ? '' : noteIconsOptions[noteOptions.indexOf(reDurations[i])]
+
+      uiElements.value.push({
+        label: label,
+        duration: sizeOptions[noteOptions.indexOf(reDurations[i])]
+      })
+    }
+  }
+}
+
+const rebuildRhythm = () => {
+  if (advancedView.value) {
+    buildRhythmAdvanced()
+  } else {
+    buildRhythm()
+  }
+}
+
+const switchMode = () => {
+  advancedView.value = !advancedView.value
+  rebuildRhythm()
 }
 
 const appendNote = () => {
-  for (let i = 0; i < subDivision.value; i++) {
-    rhythmObj.value.rhythm.push(false)
-    notesIcons.value.push(blankIcon)
-    subDivisions.value.push(getSubdivisionValue(rhythmObj.value.rhythm.length + i))
-    rhythmObj.value.length++
-  }
+  rhythmObj.value?.aRhythm.push({
+    label: '',
+    isStrong: false,
+    blockSubdivisions: [
+      {
+        type: 'PAUSE',
+        duration: 'QUARTER'
+      }
+    ]
+  })
+
+  rebuildRhythm()
 }
 
-const getSubdivisionValue = (index: number): string => {
-  if (index % subDivision.value === 0) {
-    return index / subDivision.value + 1
-  } else {
-    return subDivisionOptions[subDivision.value - 1][index % subDivision.value - 1]
-  }
-}
-
-const nextNote = (index: number) => {
-  // const currentIndex = noteOptions.indexOf(notes.value[index])
-  // const nextIndex = (currentIndex + 1) % noteOptions.length
-  // notes.value[index] = noteOptions[nextIndex]
-  // notesIcons.value[index] = noteIconsOptions[nextIndex]
-  if (rhythmObj.value.rhythm[index]) {
-    notesIcons.value[index] = noteIconsOptions[0]
-  } else {
-    notesIcons.value[index] = noteIconsOptions[3]
+const switchNote = (index: number) => {
+  if (!rhythmObj.value) {
+    return
   }
 
-  rhythmObj.value.rhythm[index] = !rhythmObj.value.rhythm[index]
+  if (rhythmObj.value.aRhythm[index].blockSubdivisions[0].type === 'PAUSE') {
+    rhythmObj.value.aRhythm[index].blockSubdivisions[0].type = 'NOTE'
+  } else {
+    rhythmObj.value.aRhythm[index].blockSubdivisions[0].type = 'PAUSE'
+  }
+
+  rebuildRhythm()
 }
 
 const deleteLastNote = () => {
-  for (let i = 0; i < subDivision.value; i++) {
-    rhythmObj.value.rhythm.splice(rhythmObj.value.rhythm.length - 1, 1)
-    rhythmObj.value.length--
-  }
+  rhythmObj.value?.aRhythm.splice(rhythmObj.value.aRhythm.length - 1, 1)
+  rebuildRhythm()
 }
 
 const isPlaying = ref(false)
@@ -183,8 +197,8 @@ const startPlayback = () => {
   currentIndex.value = -1
 
   interval.value = setInterval(() => {
-    currentIndex.value = (currentIndex.value + 1) % rhythmObj.value.length
-    if (rhythmObj.value.rhythm[currentIndex.value]) {
+    currentIndex.value = (currentIndex.value + 1) % uiElements.value.length
+    if (uiElements.value[currentIndex.value].label !== '') {
       audio.play()
     }
   }, 60 / tempo.value * 1000)
@@ -200,7 +214,6 @@ const stopPlayback = () => {
 
 onBeforeUnmount(async () => {
   stopPlayback()
-  console.info('RhytmBuilder unmounted')
 })
 
 </script>
