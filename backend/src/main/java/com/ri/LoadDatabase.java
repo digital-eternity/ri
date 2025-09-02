@@ -39,8 +39,6 @@ public class LoadDatabase
 			rhythm.setNote( 2 );
 			rhythm.setNote( 5 );
 			
-			
-			
 			log.info("Preloading " + repository.save( rhythm ) );
 			
 			
