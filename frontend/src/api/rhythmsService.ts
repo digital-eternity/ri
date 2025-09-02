@@ -14,20 +14,31 @@ export const rhythmsService = {
     }
   },
 
-  async getRhythm (rhythmId: string | number): Promise<Rhythm> {
+  async getRhythm (rhythmId: number): Promise<Rhythm> {
     try {
-      // const response = await axios.get<Rhythm>(`${API_URL}/getRhythm/${rhythmId}`)
-      const r: Rhythm = {
-        id: 1,
-        name: 'My new Rhythm',
-        rhythm: [true, false, false, true, false, true, false, true, false, false, false, false],
-        length: 12,
-        subDivision: 4
-      }
+      const response = await axios.get<Rhythm>(`${API_URL}/getRhythm/${rhythmId}`)
+      return response.data
 
-      return r
+      // const r: Rhythm = {
+      //   id: rhythmId,
+      //   name: 'La-Bamba Rhythm',
+      //   description: 'This is my first cool rhythm',
+      //   size: 8,
+      //   baseNote: 'EIGHT',
+      //   aRhythm:
+      //     [
+      //       { label: 'clap', isStrong: true, blockSubdivisions: [{ type: 'NOTE', duration: 'QUARTER' }] },
+      //       { label: 'clap', isStrong: true, blockSubdivisions: [{ type: 'PAUSE', duration: 'EIGHT' }] },
+      //       { label: 'clap', isStrong: true, blockSubdivisions: [{ type: 'PAUSE', duration: 'EIGHT' }] },
+      //       { label: 'clap', isStrong: true, blockSubdivisions: [{ type: 'NOTE', duration: 'QUARTER' }] },
+      //       { label: 'clap', isStrong: true, blockSubdivisions: [{ type: 'PAUSE', duration: 'EIGHT' }] },
+      //       { label: 'clap', isStrong: true, blockSubdivisions: [{ type: 'PAUSE', duration: 'EIGHT' }] },
+      //       { label: 'clap', isStrong: true, blockSubdivisions: [{ type: 'NOTE', duration: 'EIGHT' }] },
+      //       { label: 'clap', isStrong: true, blockSubdivisions: [{ type: 'PAUSE', duration: 'EIGHT' }] }
+      //     ]
+      // }
 
-      // return response.data
+      // return r
     } catch (error) {
       console.error('Error fetching rhythm:', error)
       throw error
