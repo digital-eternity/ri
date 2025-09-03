@@ -37,11 +37,10 @@ public class RhythmBlock
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	private String label;
+	private String label = "";
 	private Boolean isStrong = false;
 	private Integer subDivision = DEFAULT_SUBDIVISION;
 	
-	//@OneToMany(mappedBy = "id", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinColumn(name = "RHYTHM_BLOCK_ID", insertable = true, updatable = true)
     private List<RhythmElement> rhythmElements = new LinkedList<>();

@@ -99,6 +99,11 @@ public class Rhythm
 	public void setBaseNote( ERhythmElementDuration dur )
 	{
 		this.baseNote = dur;
+		
+		/** 
+		 * TODO: если baseNote < dur
+		 */
+		
 	}
 
 	public Integer getSize()

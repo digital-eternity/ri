@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ import com.ri.model.Rhythm;
  * RI Rest API controller
  */
 @RestController
+@CrossOrigin(origins = "http://localhost:8080")
 @RequestMapping("/ri")
 @Validated
 public class RIController 
@@ -59,6 +61,7 @@ public class RIController
 	}
 	
     @GetMapping("/getRhythm/{id}")
+    @CrossOrigin(origins="http://localhost:8081")
 	public Rhythm getRhythm( @PathVariable Long id ) 
 	{
 		Rhythm rhythm = repository.findById(id)
