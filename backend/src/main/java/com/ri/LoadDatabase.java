@@ -32,17 +32,21 @@ public class LoadDatabase
 	{
 		return (args) -> {
 			
+			//TODO: update with 
 			// save a few rhythms
 			log.info("Preloading...");
 			Rhythm rhythm = new Rhythm( 8 );
 			rhythm.setNote( 0 );
-			rhythm.setNote( 2 );
-			rhythm.setNote( 5 );
+			rhythm.setNote( 3 );
+			rhythm.setNote( 6 );
 			
+			Rhythm rhythm2 = new Rhythm( 9 );
+			rhythm2.setNote( 0 );
+			rhythm2.setNote( 3 );
+			rhythm2.setNote( 6 );
 			
-			
-			log.info("Preloading " + repository.save( rhythm ) );
-			
+			log.info("Loading rhythm1 " + repository.save( rhythm ) );
+			log.info("Loading rhythm2 " + repository.save( rhythm2 ) );
 			
 		    log.info( "Loaded .." + repository.count() + " rhythms" );
 			
@@ -50,7 +54,6 @@ public class LoadDatabase
 			log.info("Rythms found with findAll():");
 			log.info("-------------------------------");
 			repository.findAll().forEach(ry -> {
-				
 				log.info(ry.toString());});
 				log.info("");
 			};

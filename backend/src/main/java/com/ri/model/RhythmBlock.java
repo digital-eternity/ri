@@ -1,20 +1,27 @@
 package com.ri.model;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 /*
  * - note
  * - 
  */
 @Entity
+@Table(name = "RHYTHM_BLOCK")
 public class RhythmBlock
 {
 	public final static Integer DEFAULT_SUBDIVISION = 1;
@@ -27,28 +34,29 @@ public class RhythmBlock
 			{"e", "&", "a"}};
 	
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	private String label;
+	private String label = "";
 	private Boolean isStrong = false;
 	private Integer subDivision = DEFAULT_SUBDIVISION;
 	
-	@OneToOne(cascade = CascadeType.ALL)
-	private RhythmElement rhythmElement;
-	
-	@OneToMany(cascade = CascadeType.ALL)
-	private List<RhythmElement> blockSubdivisions;
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinColumn(name = "RHYTHM_BLOCK_ID", insertable = true, updatable = true)
+    private List<RhythmElement> rhythmElements = new LinkedList<>();
 	
 	
-	protected RhythmBlock()
+	public RhythmBlock()
 	{
-		rhythmElement = new RhythmElement();
+		rhythmElements = IntStream.range( 0, subDivision ).
+				boxed().
+				map( i -> new RhythmElement() ).
+				toList();
 	}
 	
 	public RhythmBlock( ERhythmElementType type, ERhythmElementDuration duration )
 	{
-		rhythmElement = new RhythmElement( type, duration );
+		rhythmElements.add( new RhythmElement() );
 	}
 
 	public Long getId()
@@ -81,41 +89,15 @@ public class RhythmBlock
 		this.isStrong = isStrong;
 	}
 	
-	public RhythmElement getRhythmElement()
+	public List<RhythmElement> getRhythmElements()
 	{
-		return rhythmElement;
+		return rhythmElements;
 	}
 	
-	public void setRhythmElement( RhythmElement rhythmElement )
+	public void setRhythmElements( List<RhythmElement> rhythmElements )
 	{
-		this.rhythmElement = rhythmElement;
+		this.rhythmElements = rhythmElements;
 	}
-
-	/*
-	public ERhythmElementType getType()
-	{
-		return type;
-	}
-
-	public void setElementType( ERhythmElementType type )
-	{
-		this.type = type;
-	}
-	
-	public ERhythmElementDuration getDuration()
-	{
-		return this.duration;
-	}
-	
-	public void setDuration( ERhythmElementDuration dur )
-	{
-		if( type == DEFAULT_ELEMENT_TYPE || ( dur.getDuration() < duration.getDuration() ) )
-		{
-			//TODO: create subdiv list and set note
-			this.duration = dur;
-		}
-	}
-	*/
 
 	public Integer getSubDivision()
 	{
@@ -127,21 +109,57 @@ public class RhythmBlock
 		this.subDivision = count;
 		
 		//TODO: optimize
-		ERhythmElementDuration dur = rhythmElement.getDuration().getNext();
+		ERhythmElementDuration dur = rhythmElements.get( 0 ).getDuration();
 		
-		setBlockSubdivisions( IntStream.range( 0, count ).
-				boxed().
-				map( i -> new RhythmElement( ERhythmElementType.PAUSE, dur ) ).
-				toList() );
+		for ( int i = 0; i < count; i++ )
+		{
+			rhythmElements.add( new RhythmElement( RhythmElement.DEFAULT_ELEMENT_TYPE, dur ) );
+		}
+	}
+	
+	
+	public void changeElementType()
+	{
+		changeElementType(0);
+	}
+	
+	
+	public void changeElementType( Integer n )
+	{
+		rhythmElements.get( n ).changeType();
+	}
+	
+	public void setRhythmElement( RhythmElement el )
+	{
+		setRhythmElement( 0, el );
+	}
+	
+	
+	public void setRhythmElement( Integer n, RhythmElement el )
+	{
+		rhythmElements.set( n, el );
+	}
+	
+	@Override
+	//TODO: check and update
+	public boolean equals( Object o ) 
+	{
+		if( this == o )
+			return true;
+	    
+		if( !( o instanceof RhythmBlock ) )
+			return false;
+	    
+		RhythmBlock block = ( RhythmBlock ) o;
+	    
+		return Objects.equals( id, block.getId() );
+	  }
+	
+	@Override
+	public int hashCode() 
+	{
+		return Objects.hash( this.id, this.rhythmElements );
 	}
 
-	public List<RhythmElement> getBlockSubdivisions()
-	{
-		return blockSubdivisions;
-	}
 
-	public void setBlockSubdivisions( List<RhythmElement> blockSubdivisions )
-	{
-		this.blockSubdivisions = blockSubdivisions;
-	}
 }

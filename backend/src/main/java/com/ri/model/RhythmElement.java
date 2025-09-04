@@ -1,20 +1,25 @@
 package com.ri.model;
 
+import java.util.Objects;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "RHYTHM_ELEMENT")
 public class RhythmElement
 {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	
 	public final static ERhythmElementType DEFAULT_ELEMENT_TYPE = ERhythmElementType.PAUSE;
 	public final static ERhythmElementDuration DEFAULT_ELEMENT_DURATION = ERhythmElementDuration.QUARTER;
-	
-	@Id
-	@GeneratedValue
-	private Long id;
 	
 	@Enumerated(EnumType.STRING)
 	private ERhythmElementType type; 
@@ -60,5 +65,26 @@ public class RhythmElement
 	public void setDuration( ERhythmElementDuration duration )
 	{
 		this.duration = duration;
+	}
+	
+	@Override
+	public boolean equals( Object o ) 
+	{
+		if( this == o )
+			return true;
+	    
+		if( !( o instanceof RhythmElement ) )
+			return false;
+	    
+		RhythmElement el = ( RhythmElement ) o;
+	    
+		return Objects.equals( type, el.getType() )
+				&& Objects.equals( duration, el.getDuration() );
+	  }
+	
+	@Override
+	public int hashCode() 
+	{
+		return Objects.hash( this.id, this.type, this.duration );
 	}
 }

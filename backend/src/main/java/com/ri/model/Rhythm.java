@@ -9,18 +9,20 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "RHYTHM")
 public class Rhythm 
 {
-	public final static ERhythmElementDuration DEFAULT_DURATION = ERhythmElementDuration.QUARTER;
-	
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	private String name = "Rhythm ";
@@ -29,11 +31,12 @@ public class Rhythm
 	private Integer size;
 
 	@Enumerated(EnumType.STRING)
-	private ERhythmElementDuration baseNote = DEFAULT_DURATION;
+	private ERhythmElementDuration baseNote = RhythmElement.DEFAULT_ELEMENT_DURATION;
 	
-	@OneToMany(cascade = CascadeType.ALL)
-	//@JoinColumn(name = "rhythm_id")
-	private List<RhythmBlock> aRhythm;
+	//@OneToMany(mappedBy = "id", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinColumn(name = "RHYTHM_ID", insertable = true, updatable = true)
+    private List<RhythmBlock> rhythm;
 	
 	
 	public Rhythm()
@@ -50,38 +53,13 @@ public class Rhythm
 	{
 		this.size = size;
 		
-		aRhythm = IntStream.range( 0, size ).
+		rhythm = IntStream.range( 0, size ).
 				boxed().
-				map( i -> new RhythmBlock( ERhythmElementType.PAUSE, baseNote ) ).
+				map( i -> new RhythmBlock() ).
 				toList();	
 		
 		String srtt = "";
 	}
-	
-	
-	/*
-	private void initWithSubdivisionLabeles( Integer size, Integer subDiv )
-	{
-		aRhythm = new ArrayList<RhythmBlock>( ( size * subDiv ) );
-		 
-		RhythmBlock block;
-		
-		for( int i = 0; i < size; i++ )
-		{
-			block = new RhythmBlock();
-			block.setLabel( String.valueOf( i + 1 ) );
-			
-			aRhythm.add( block ); 
-			
-			for ( int j = 0; j < subDiv-1; j++ )
-			{
-				block = new RhythmBlock();
-				block.setLabel( SUBDIVISION_NAMES[subDiv][j] );
-				aRhythm.add( block ); 				
-			}
-		}
-	}
-	 */
 	
 	public Long getId() 
 	{
@@ -112,6 +90,21 @@ public class Rhythm
 	{
 		this.description = descr;
 	}
+	
+	public ERhythmElementDuration getBaseNote()
+	{
+		return baseNote;
+	}
+	
+	public void setBaseNote( ERhythmElementDuration dur )
+	{
+		this.baseNote = dur;
+		
+		/** 
+		 * TODO: если baseNote < dur
+		 */
+		
+	}
 
 	public Integer getSize()
 	{
@@ -123,10 +116,11 @@ public class Rhythm
 		this.size = s;
 	}
 	
+	//TODO: to add functionality to update subdivisions
 	public void setNote( Integer n, 
 			RhythmElement rhythmElement )
 	{
-		RhythmBlock rhythmBlock = aRhythm.get( n );
+		RhythmBlock rhythmBlock = rhythm.get( n );
 		
 		rhythmBlock.setRhythmElement( rhythmElement );
 	}
@@ -134,12 +128,23 @@ public class Rhythm
 
 	public void setNote( Integer n )
 	{
-		RhythmBlock rhythmBlock = aRhythm.get( n );
+		RhythmBlock rhythmBlock = rhythm.get( n );
 		
-		rhythmBlock.getRhythmElement().changeType();
+		rhythmBlock.changeElementType();
+	}
+	
+	public List<RhythmBlock> getRhythm()
+	{
+		return rhythm;
+	}
+	
+	public void setRhythm( List<RhythmBlock> rhythm )
+	{
+		this.rhythm = rhythm;
 	}
 	
 	@Override
+	//TODO: update
 	public boolean equals( Object o ) 
 	{
 		if( this == o )
@@ -166,7 +171,7 @@ public class Rhythm
 	{
 		return String.format(
 				"Rhythm[id=%d, name='%s', rhythm=%s]",
-				id, name, aRhythm.toString() );
+				id, name, rhythm.toString() );
 	}
 	
 }
