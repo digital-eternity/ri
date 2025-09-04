@@ -3,6 +3,7 @@ import VueApexCharts from 'vue3-apexcharts'
 import './registerServiceWorker'
 import router from './router'
 import App from './App.vue'
+import '@mdi/font/css/materialdesignicons.css'
 
 // Vuetify
 import 'vuetify/styles'
