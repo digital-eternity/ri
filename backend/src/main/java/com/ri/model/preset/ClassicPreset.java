@@ -1,6 +1,12 @@
 package com.ri.model.preset;
 
-public enum ClassicPreset
-{
+import java.util.List;
 
+public class ClassicPreset extends RIPreset
+{
+	public ClassicPreset()
+	{
+		super.name = "Classic";
+		super.elements = List.of("click");
+	}
 }

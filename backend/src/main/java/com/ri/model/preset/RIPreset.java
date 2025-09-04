@@ -2,23 +2,15 @@ package com.ri.model.preset;
 
 import java.util.List;
 
-public enum RIPreset
+public class RIPreset
 {
-	CLASSIC("Classic"),
-	BODY_PERCUSSION("Body Percussion"),
-	KONNAKOL("Konnakol");
-	
-	private String name;
+	protected String name;
+	protected List<String> elements;
 		
-	private RIPreset( String name )
+	protected RIPreset( )
 	{
-		// TODO Auto-generated constructor stub
-		this.name = name;
-		
-		List<> l = Class.forName( name + "Preset" ).values();
 	}
-	
-	
+
 	public String getName()
 	{
 		return name;
@@ -27,26 +19,16 @@ public enum RIPreset
 	{
 		this.name = name;
 	}
-	
-	/**
-	 * A common method for all enums since they can't have another base class
-	 * @param <T> Enum type
-	 * @param c enum type. All enums must be all caps.
-	 * @param string case insensitive
-	 * @return corresponding enum, or null
-	 */
-	public static <T extends Enum<T>> T getEnumFromString(Class<T> c, String string) 
+
+	public List<String> getElements()
 	{
-	    if( c != null && string != null ) {
-	        try {
-	            return Enum.valueOf(c, string.trim().toUpperCase());
-	        } catch(IllegalArgumentException ex) {
-	        }
-	    }
-	    return null;
+		return elements;
 	}
-	
-	
+
+	protected void setElements( List<String> elements )
+	{
+		this.elements = elements;
+	}	
 
 
 }

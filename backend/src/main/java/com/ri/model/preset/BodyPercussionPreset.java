@@ -1,9 +1,14 @@
 package com.ri.model.preset;
 
-public enum BodyPercussionPreset
+import java.util.List;
+
+public class BodyPercussionPreset extends RIPreset
 {
-	CLAP,
-	SNAP,
-	PAT,
-	STOMP
+	public BodyPercussionPreset()
+	{
+		super.name = "Body Percussion";
+		super.elements = List.of("clap", "stomp", "pat", "click");
+	}
+	
+	
 }

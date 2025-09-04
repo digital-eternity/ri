@@ -24,18 +24,22 @@ public class PresetController
     	this.service = service;
     }
 		
-    
-	@GetMapping("/getAll")
-	public List<RIPreset> getPresets() 
+   	@GetMapping("/getAll")
+	public List<String> getPresets() 
 	{
 		return service.getPresets();
 	}
 	
 	@GetMapping("/getInit")
-	public RIPreset getInit() 
+	public String getInit() 
 	{
 		return service.getInit();
 	}
-
+	
+	@GetMapping("/getPresetValues/{name}")
+	public List<String> getPresetValues( String name ) 
+	{
+		return service.getValsForPreset( name );
+	}
 
 }
