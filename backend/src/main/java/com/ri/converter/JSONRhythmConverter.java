@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ri.model.Rhythm;
+import com.ri.model.rhythm.Rhythm;
 
 
 /**

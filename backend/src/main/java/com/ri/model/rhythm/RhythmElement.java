@@ -1,4 +1,4 @@
-package com.ri.model;
+package com.ri.model.rhythm;
 
 import java.util.Objects;
 

@@ -1,9 +1,8 @@
-package com.ri.model;
+package com.ri.model.rhythm;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
-
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;

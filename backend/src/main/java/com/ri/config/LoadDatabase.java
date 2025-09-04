@@ -1,4 +1,4 @@
-package com.ri;
+package com.ri.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.ri.converter.JSONRhythmConverter;
 import com.ri.dao.RhythmRepository;
-import com.ri.model.Rhythm;
+import com.ri.model.rhythm.Rhythm;
 
 
 /**

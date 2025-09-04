@@ -1,4 +1,4 @@
-package com.ri.controller;
+package com.ri.api;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,35 +15,34 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
-
+import com.ri.controller.RhythmNotFoundException;
 import com.ri.dao.RhythmRepository;
-import com.ri.model.Rhythm;
+import com.ri.model.rhythm.Rhythm;
 
 /**
- * RI Rest API controller
+ * Rhythm Rest API controller
  */
 @RestController
 @CrossOrigin(origins = "http://localhost:8080")
-@RequestMapping("/ri")
+@RequestMapping("/api/rhythm")
 @Validated
-public class RIController 
+public class RhythmController 
 {
     private final RhythmRepository repository; 
 
-    public RIController( RhythmRepository rep ) 
+    public RhythmController( RhythmRepository rep ) 
     { 
     	this.repository = rep;
     }
 	
-    @PostMapping("/addRhythm")
+    @PostMapping("/add")
     public Rhythm addRhythm( @RequestBody Rhythm newRhythm ) 
 	{
 		return repository.save( newRhythm );
 	}
     
     //TODO: add validation and fix updating
-    @PutMapping("/replaceRhythm/{id}")
+    @PutMapping("/update/{id}")
     public Rhythm updateRhythm( @RequestBody Rhythm newRhythm, 
     							@PathVariable Long id ) 
 	{
@@ -60,7 +59,7 @@ public class RIController
 			      });
 	}
 	
-    @GetMapping("/getRhythm/{id}")
+    @GetMapping("/get/{id}")
     @CrossOrigin(origins="http://localhost:8081")
 	public Rhythm getRhythm( @PathVariable Long id ) 
 	{
@@ -71,14 +70,14 @@ public class RIController
 	}
 	
     
-	@GetMapping("/getRhythmsList")
-	public List<Rhythm> getRhythm() 
+	@GetMapping("/getAll")
+	public List<Rhythm> getRhythms() 
 	{
 		return StreamSupport.stream(repository.findAll().spliterator(), false)
                             .collect(Collectors.toList());
 	}
 	
-	@DeleteMapping("/deleteRhythm/{id}")
+	@DeleteMapping("/delete/{id}")
 	public void deleteRhythm( @PathVariable Long id ) 
 	{
 		repository.deleteById( id );

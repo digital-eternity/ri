@@ -3,7 +3,7 @@ package com.ri.dao;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.ri.model.Rhythm;
+import com.ri.model.rhythm.Rhythm;
 
 @Repository
 public interface RhythmRepository extends CrudRepository<Rhythm, Long> 
