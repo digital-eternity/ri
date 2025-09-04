@@ -18,7 +18,7 @@ interface RhythmBlock {
   id?: number,
   label: string,
   isStrong: boolean,
-  blockSubdivisions: RhythmElement[]
+  rhythmElements: RhythmElement[]
 }
 
 interface Rhythm {
@@ -27,7 +27,7 @@ interface Rhythm {
   description?: string,
   size: number,
   baseNote: RhythmElementDuration
-  aRhythm: RhythmBlock[],
+  rhythm: RhythmBlock[],
 }
 
 export {

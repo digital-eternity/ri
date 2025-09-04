@@ -13,7 +13,7 @@
     </v-app-bar>
 
     <v-main>
-      <router-view style="max-width: 90%;"></router-view>
+      <router-view style="max-width: 100%;"></router-view>
     </v-main>
   </v-app>
 </template>
