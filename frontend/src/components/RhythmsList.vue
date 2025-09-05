@@ -27,7 +27,6 @@
           v-model="selectedBase"
           :items="availableBases"
           label="Filter by base note"
-          @change="applyFilters"
           clearable
           class="ml-5 mt-5"
           width="50"
@@ -93,10 +92,6 @@ const headers: ReadonlyHeaders = [
 
 const deleteSelected = () => {
   emit('delete-selected', selectedRhythms.value)
-}
-
-const applyFilters = () => {
-  // If all filters is ok and running, can do emit
 }
 
 const filteredRhythms = computed(() => {

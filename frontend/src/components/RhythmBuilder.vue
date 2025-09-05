@@ -26,6 +26,17 @@
             v-model="rhythmObj.baseNote"
           />
         </v-col>
+        <v-col cols="2">
+          <p><strong>Preset:</strong></p>
+          <v-select
+            width="200"
+            variant="outlined"
+            density="compact"
+            :items="presets"
+            v-model="currentPreset"
+            @update:model-value="changePreset"
+          />
+        </v-col>
       </v-row>
 
       <v-row>
@@ -36,7 +47,7 @@
 
       <v-row class="mx-0">
         <v-col class="d-flex flex-column pl-0 pr-2" cols="auto" v-for="(el, index) in uiElements" :key="index">
-          <v-btn
+          <v-btn v-if="advancedView"
             :icon="el.label"
             @click="switchNote(index)"
             :width="el.duration * 40"
@@ -47,6 +58,19 @@
                     }"
             :style="`border-radius: ${advancedView ? '0px' : '0px' }`"
           />
+          <v-btn v-else
+            icon=""
+            @click="switchNote(index)"
+            :width="el.duration * 40"
+            :height="40"
+            :class=" {
+                      'highlighted': currentIndex === index,
+                      'violet-highlight': isPlaying && currentIndex === index
+                    }"
+            :style="`border-radius: ${advancedView ? '0px' : '0px' }`"
+          >
+            <v-img :src="getFilePath(el.label, 'png')" style="position: static;"/>
+          </v-btn>
           <v-btn
             class="mt-auto align-self-end mt-n2"
             v-if="index === uiElements.length - 1"
@@ -111,11 +135,12 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
 import { rhythmsService } from '@/api/rhythmsService'
+import { presetsService } from '@/api/presetsService'
 import { NoteIcon } from '@/types/uiTypes'
-import { Rhythm, RhythmElementType, RhythmElementDuration } from '@/types/riTypes'
+import { Rhythm, RhythmElementDuration } from '@/types/riTypes'
 
 interface UiRhythmElement {
-  label: NoteIcon,
+  label: string,
   duration: number
 }
 
@@ -132,19 +157,41 @@ const subDivisionOptions: string[][] = [[], ['&'], ['&', 'a'], ['e', '&', 'a']]
 const noteIconsOptions: NoteIcon[] = ['mdi-music-note-whole', 'mdi-music-note-half', 'mdi-music-note-quarter', 'mdi-music-note-eighth', 'mdi-music-note-sixteenth', 'mdi-music-note-sixteenth']
 const rhythmObj = ref<Rhythm>({ name: '', baseNote: '' })
 const advancedView = ref(false)
-const audio = new Audio('/default-click.mp3')
+// const audio = ref<Map<string, Audio>>()
 
 const uiElements = ref<UiRhythmElement[]>([])
+const presets = ref<string[]>([])
+const currentPreset = ref<string>('Classic')
+const currentPresetValues = ref<string[]>(['click'])
 
-// onMounted(async () => {
-//   rhythmObj.value = await rhythmsService.getRhythm(1)
-//   rebuildRhythm()
-// })
+onMounted(async () => {
+  presets.value = await presetsService.getPresetsList()
+  currentPreset.value = presets.value[0]
+  rebuildRhythm()
+})
 
 watch(() => props.rhythm, async (newRhythm) => {
   rhythmObj.value = newRhythm
   rebuildRhythm()
 })
+
+const changePreset = async () => {
+  currentPresetValues.value = await presetsService.getPresetValues(currentPreset.value)
+  rebuildRhythm()
+}
+
+// const setAudio = () => {
+//   audio.value = new Map<string, Audio>()
+//   currentPresetValues.value.forEach(v => audio.value?.set(v, new Audio(getPath(v) + '.mp3')))
+// }
+
+const getPath = (label: string): string => {
+  return '/preset/' + currentPreset.value + '/' + label
+}
+
+const getFilePath = (label: string, extension: string): string => {
+  return '/preset/' + currentPreset.value + '/' + label + '.' + extension
+}
 
 const buildRhythm = () => {
   if (rhythmObj.value) {
@@ -152,7 +199,9 @@ const buildRhythm = () => {
     const reTypes = rhythmObj.value.rhythm.flatMap(r => r.rhythmElements).map(s => s.type)
 
     for (let i = 0; i < rhythmObj.value.rhythm.length; i++) {
-      const label = reTypes[i] === 'PAUSE' ? '' : 'mdi-circle'
+      const lbl = rhythmObj.value.rhythm[i].label || currentPresetValues.value[0]
+      const label = reTypes[i] === 'PAUSE' ? '' : lbl
+      rhythmObj.value.rhythm[i].label = lbl
 
       uiElements.value.push({
         label: label,
@@ -214,8 +263,12 @@ const switchNote = (index: number) => {
 
   if (rhythmObj.value.rhythm[index].rhythmElements[0].type === 'PAUSE') {
     rhythmObj.value.rhythm[index].rhythmElements[0].type = 'NOTE'
-  } else {
+    rhythmObj.value.rhythm[index].label = currentPresetValues.value[0]
+  } else if (uiElements.value[index].label === currentPresetValues.value[currentPresetValues.value.length - 1]) {
+    rhythmObj.value.rhythm[index].label = ''
     rhythmObj.value.rhythm[index].rhythmElements[0].type = 'PAUSE'
+  } else {
+    rhythmObj.value.rhythm[index].label = currentPresetValues.value[currentPresetValues.value.indexOf(rhythmObj.value.rhythm[index].label) + 1]
   }
 
   rebuildRhythm()
@@ -236,13 +289,16 @@ const startPlayback = () => {
     return
   }
 
+  // setAudio()
+
   isPlaying.value = true
   currentIndex.value = -1
 
   interval.value = setInterval(() => {
     currentIndex.value = (currentIndex.value + 1) % uiElements.value.length
     if (uiElements.value[currentIndex.value].label !== '') {
-      audio.play()
+      new Audio(getPath(uiElements.value[currentIndex.value].label) + '.mp3').play()
+      // (audio.value?.get(uiElements.value[currentIndex.value].label) as Audio).play()
     }
   }, 60 / tempo.value * 1000)
 }
