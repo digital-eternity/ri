@@ -4,7 +4,7 @@
       <v-switch @click="switchMode" label="Advanced view"></v-switch>
     </v-col>
   </v-row>
-  <v-card>
+  <v-card v-if="rhythmObj">
     <v-card-title class="text-left">{{ rhythmObj ? rhythmObj.name : '' }}</v-card-title>
     <v-card-text class="text-left">
       <v-row>
@@ -17,7 +17,7 @@
             v-model="tempo"
           />
         </v-col>
-        <v-col cols="2">
+        <v-col cols="3">
           <p><strong>Base note:</strong></p>
           <v-select
             width="200"
@@ -102,10 +102,10 @@
       </v-row>
       <v-row>
         <v-col>
-        <v-btn
-          class="mb-4"
-          color="primary"
-          @click="startPlayback">
+          <v-btn
+            class="mb-4"
+            color="primary"
+            @click="startPlayback">
             <v-icon>mdi-play</v-icon>
             <span v-if="isPlaying">Stop</span>
             <span v-else>Play</span>
@@ -146,6 +146,7 @@ interface UiRhythmElement {
 
 interface Props {
   rhythm: Rhythm
+  play: boolean
 }
 
 const props = defineProps<Props>()
@@ -155,7 +156,7 @@ const noteOptions: RhythmElementDuration[] = ['WHOLE', 'HALF', 'QUARTER', 'EIGHT
 const sizeOptions: number[] = [4, 2, 1, 0.5, 0.25, 0.125]
 const subDivisionOptions: string[][] = [[], ['&'], ['&', 'a'], ['e', '&', 'a']]
 const noteIconsOptions: NoteIcon[] = ['mdi-music-note-whole', 'mdi-music-note-half', 'mdi-music-note-quarter', 'mdi-music-note-eighth', 'mdi-music-note-sixteenth', 'mdi-music-note-sixteenth']
-const rhythmObj = ref<Rhythm>({ name: '', baseNote: '' })
+const rhythmObj = ref<Rhythm | null>(null)
 const advancedView = ref(false)
 // const audio = ref<Map<string, Audio>>()
 
@@ -170,27 +171,12 @@ onMounted(async () => {
   rebuildRhythm()
 })
 
-watch(() => props.rhythm, async (newRhythm) => {
-  rhythmObj.value = newRhythm
-  rebuildRhythm()
-})
-
-const changePreset = async () => {
-  currentPresetValues.value = await presetsService.getPresetValues(currentPreset.value)
-  rebuildRhythm()
-}
-
-// const setAudio = () => {
-//   audio.value = new Map<string, Audio>()
-//   currentPresetValues.value.forEach(v => audio.value?.set(v, new Audio(getPath(v) + '.mp3')))
-// }
-
-const getPath = (label: string): string => {
-  return '/preset/' + currentPreset.value + '/' + label
-}
-
-const getFilePath = (label: string, extension: string): string => {
-  return '/preset/' + currentPreset.value + '/' + label + '.' + extension
+const rebuildRhythm = () => {
+  if (advancedView.value) {
+    buildRhythmAdvanced()
+  } else {
+    buildRhythm()
+  }
 }
 
 const buildRhythm = () => {
@@ -228,12 +214,35 @@ const buildRhythmAdvanced = () => {
   }
 }
 
-const rebuildRhythm = () => {
-  if (advancedView.value) {
-    buildRhythmAdvanced()
+watch(() => props.rhythm, async (newRhythm) => {
+  rhythmObj.value = newRhythm
+  rebuildRhythm()
+}, { immediate: true })
+
+watch(() => props.play, async (newPlay) => {
+  if (newPlay) {
+    startPlayback()
   } else {
-    buildRhythm()
+    stopPlayback()
   }
+})
+
+const changePreset = async () => {
+  currentPresetValues.value = await presetsService.getPresetValues(currentPreset.value)
+  rebuildRhythm()
+}
+
+// const setAudio = () => {
+//   audio.value = new Map<string, Audio>()
+//   currentPresetValues.value.forEach(v => audio.value?.set(v, new Audio(getPath(v) + '.mp3')))
+// }
+
+const getPath = (label: string): string => {
+  return '/preset/' + currentPreset.value + '/' + label
+}
+
+const getFilePath = (label: string, extension: string): string => {
+  return '/preset/' + currentPreset.value + '/' + label + '.' + extension
 }
 
 const switchMode = () => {

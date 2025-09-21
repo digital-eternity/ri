@@ -32,7 +32,8 @@
           width="50"
         />
         <v-spacer/>
-        <v-icon v-if="selectedRhythms.length != 0" class="mr-5"  @click="deleteSelected" icon="mdi-delete"></v-icon>
+        <v-icon v-if="selectedRhythms.length != 0" @click="openSelected" icon="mdi-plus" class="mr-5"/>
+        <v-icon v-if="selectedRhythms.length != 0" class="mr-5" @click="deleteSelected" icon="mdi-delete"/>
       </v-toolbar>
     </template>
 
@@ -76,6 +77,7 @@ const props = defineProps<Props>()
 interface RhythmEmits {
   (e: 'open-rhythm', rhythm: Rhythm): void,
   (e: 'delete-selected', selectedRhythms: number[]): void
+  (e: 'open-selected', rhythms: Rhythm[]): void
 }
 
 const emit = defineEmits<RhythmEmits>()
@@ -92,6 +94,10 @@ const headers: ReadonlyHeaders = [
 
 const deleteSelected = () => {
   emit('delete-selected', selectedRhythms.value)
+}
+
+const openSelected = () => {
+  emit('open-selected', props.rhythms.filter(rhythm => selectedRhythms.value.includes(rhythm.id as number)))
 }
 
 const filteredRhythms = computed(() => {

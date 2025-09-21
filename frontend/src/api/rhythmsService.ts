@@ -18,27 +18,6 @@ export const rhythmsService = {
     try {
       const response = await axios.get<Rhythm>(`${API_URL}/get/${rhythmId}`)
       return response.data
-
-      // const r: Rhythm = {
-      //   id: rhythmId,
-      //   name: 'La-Bamba Rhythm',
-      //   description: 'This is my first cool rhythm',
-      //   size: 8,
-      //   baseNote: 'EIGHT',
-      //   aRhythm:
-      //     [
-      //       { label: 'clap', isStrong: true, blockSubdivisions: [{ type: 'NOTE', duration: 'QUARTER' }] },
-      //       { label: 'clap', isStrong: true, blockSubdivisions: [{ type: 'PAUSE', duration: 'EIGHT' }] },
-      //       { label: 'clap', isStrong: true, blockSubdivisions: [{ type: 'PAUSE', duration: 'EIGHT' }] },
-      //       { label: 'clap', isStrong: true, blockSubdivisions: [{ type: 'NOTE', duration: 'QUARTER' }] },
-      //       { label: 'clap', isStrong: true, blockSubdivisions: [{ type: 'PAUSE', duration: 'EIGHT' }] },
-      //       { label: 'clap', isStrong: true, blockSubdivisions: [{ type: 'PAUSE', duration: 'EIGHT' }] },
-      //       { label: 'clap', isStrong: true, blockSubdivisions: [{ type: 'NOTE', duration: 'EIGHT' }] },
-      //       { label: 'clap', isStrong: true, blockSubdivisions: [{ type: 'PAUSE', duration: 'EIGHT' }] }
-      //     ]
-      // }
-
-      // return r
     } catch (error) {
       console.error('Error fetching rhythm:', error)
       throw error
